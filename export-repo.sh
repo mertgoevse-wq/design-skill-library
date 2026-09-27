@@ -48,11 +48,23 @@ PY
 echo "  $(wc -l < "$ALLOW") Skills erlaubt"
 
 echo "→ staging nach $R"
-rm -rf "$R"
+# README/LICENSE/.gitignore liegen dauerhaft in $R und werden beim Re-Export
+# gesichert, damit sie nicht verloren gehen. .git wird NIEMALS angefasst:
+# das Arbeitsverzeichnis ist selbst das geklonte Repo.
+STASH="$LIB/.repo-stash"
+rm -rf "$STASH"; mkdir -p "$STASH"
+for f in README.md LICENSE .gitignore; do
+  [[ -f "$R/$f" ]] && cp "$R/$f" "$STASH/" || true
+done
+
+# Inhalt loeschen statt Verzeichnis entfernen -> .git bleibt erhalten
+find "$R" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
 mkdir -p "$R/skills" "$R/commands"
+cp -a "$STASH/." "$R/"
+rm -rf "$STASH"
 
 for f in CURATION.tsv CURATION2.tsv ATTRIBUTION.md install.sh slop-scan.sh \
-         build-index.py build-attribution.py migrate-existing.sh export-repo.sh .gitignore; do
+         build-index.py build-attribution.py migrate-existing.sh export-repo.sh; do
   [[ -f "$LIB/$f" ]] && cp "$LIB/$f" "$R/"
 done
 chmod +x "$R"/*.sh 2>/dev/null || true
@@ -72,6 +84,9 @@ while IFS=$'\t' read -r slug repo; do
   count=$((count + 1))
 done < "$ALLOW"
 rm -f "$ALLOW"
+
+# Index ueber den fertigen Snapshot erzeugen (nicht die lokale Gesamtversion)
+(cd "$R" && python3 build-index.py) || echo "WARNUNG: Index-Erzeugung fehlgeschlagen"
 
 echo
 echo "Skills im Repo-Snapshot: $count"
