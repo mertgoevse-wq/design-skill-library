@@ -1,0 +1,65 @@
+# Design Skill Library — Curation Manifest
+# Source of truth. Consumed by install.sh / index generator / router skill.
+# Format: slug<TAB>repo_dir<TAB>path_in_repo<TAB>category<TAB>installs<TAB>origin
+# origin: new = frisch kuratiert | migrated = lag bereits in ~/.claude/skills
+#
+# slug	repo	path	category	installs	origin
+frontend-design	anthropics_skills	skills/frontend-design	core	926.6K	new
+baseline-ui	ibelick_ui-skills	skills/baseline-ui	core	-	new
+better-ui	jakubkrehel_skills	skills/better-ui	core	-	new
+top-design	wondelai_skills	plugins/ux-design/skills/top-design	core	-	new
+visual-design-foundations	wshobson_agents	plugins/ui-design/skills/visual-design-foundations	foundations	-	new
+improve-ui	ibelick_ui-skills	skills/improve-ui	review	-	new
+better-interface	jakubkrehel_skills	skills/better-interface	review	-	new
+interface-review	jakubkrehel_skills	skills/interface-review	review	-	new
+refactoring-ui	wondelai_skills	plugins/ux-design/skills/refactoring-ui	review	-	new
+steve-jobs-design-review	wondelai_skills	plugins/ux-design/skills/steve-jobs-design-review	review	-	new
+better-typography	jakubkrehel_skills	skills/better-typography	typography	24.2K	new
+better-colors	jakubkrehel_skills	skills/better-colors	color	22.8K	new
+better-layout	jakubkrehel_skills	skills/better-layout	layout	21.1K	new
+web-typography	wondelai_skills	plugins/ux-design/skills/web-typography	typography	8.1K	new
+better-writing	jakubkrehel_skills	skills/better-writing	copy	-	new
+design-system-patterns	wshobson_agents	plugins/ui-design/skills/design-system-patterns	design-system	-	new
+ui-styling	nextlevelbuilder_ui-ux-pro-max-skill	.claude/skills/ui-styling	design-system	32.5K	new
+tailwind-design-system	wshobson_agents	plugins/frontend-mobile-development/skills/tailwind-design-system	design-system	65.9K	new
+animation-vocabulary	emilkowalski_skills	skills/animation-vocabulary	motion	169K	new
+review-animations	emilkowalski_skills	skills/review-animations	motion	181.7K	new
+improve-animations	emilkowalski_skills	skills/improve-animations	motion	153.3K	new
+find-animation-opportunities	emilkowalski_skills	skills/find-animation-opportunities	motion	139.8K	new
+interaction-design	wshobson_agents	plugins/ui-design/skills/interaction-design	motion	-	new
+microinteractions	wondelai_skills	plugins/ux-design/skills/microinteractions	motion	-	new
+fixing-motion-performance	ibelick_ui-skills	skills/fixing-motion-performance	motion	23.5K	new
+apple-design	emilkowalski_skills	skills/apple-design	motion	166.7K	new
+fixing-accessibility	ibelick_ui-skills	skills/fixing-accessibility	a11y	19.2K	new
+better-accessibility	jakubkrehel_skills	skills/better-accessibility	a11y	20.3K	new
+accessibility-compliance	wshobson_agents	plugins/ui-design/skills/accessibility-compliance	a11y	13.6K	new
+wcag-web-a11y	addyosmani_web-quality-skills	skills/accessibility	a11y	56.4K	new
+web-quality-audit	addyosmani_web-quality-skills	skills/web-quality-audit	quality	28.3K	new
+core-web-vitals	addyosmani_web-quality-skills	skills/core-web-vitals	quality	-	new
+audit-website	squirrelscan_skills	skills/audit-website	quality	71.9K	new
+ui-variant	jakubkrehel_skills	skills/variant	iterate	-	new
+ui-break	jakubkrehel_skills	skills/break	iterate	-	new
+create-design-md	ibelick_ui-skills	skills/create-design-md	design-doc	-	new
+design-md	google-labs-code_stitch-skills	plugins/stitch-utilities/skills/design-md	design-doc	-	new
+enhance-prompt	google-labs-code_stitch-skills	plugins/stitch-utilities/skills/enhance-prompt	design-doc	56.8K	new
+shadcn-ui	google-labs-code_stitch-skills	plugins/stitch-build/skills/shadcn-ui	design-doc	-	new
+code-to-design	google-labs-code_stitch-skills	plugins/stitch-design/skills/code-to-design	design-doc	-	new
+theme-factory	anthropics_skills	skills/theme-factory	visual	87.5K	new
+web-artifacts-builder	anthropics_skills	skills/web-artifacts-builder	visual	104.1K	new
+ux-heuristics	wondelai_skills	plugins/ux-design/skills/ux-heuristics	ux	7.6K	new
+design-everyday-things	wondelai_skills	plugins/ux-design/skills/design-everyday-things	ux	-	new
+ios-hig-design	wondelai_skills	plugins/ux-design/skills/ios-hig-design	ux	78.6K	new
+hooked-ux	wondelai_skills	plugins/ux-design/skills/hooked-ux	ux	5.4K	new
+jobs-to-be-done	wondelai_skills	plugins/product-strategy/skills/jobs-to-be-done	ux	-	new
+lean-ux	wondelai_skills	plugins/ux-design/skills/lean-ux	ux	-	new
+influence-psychology	wondelai_skills	plugins/sales-influence/skills/influence-psychology	marketing	-	new
+made-to-stick	wondelai_skills	plugins/sales-influence/skills/made-to-stick	marketing	-	new
+storybrand-messaging	wondelai_skills	plugins/marketing-cro/skills/storybrand-messaging	marketing	-	new
+cro-methodology	wondelai_skills	plugins/marketing-cro/skills/cro-methodology	marketing	-	new
+conversion-optimization	wondelai_skills	plugins/metaskills/skills/conversion-optimization	marketing	-	new
+brand	nextlevelbuilder_ui-ux-pro-max-skill	.claude/skills/brand	marketing	32.1K	new
+design-mobile-apps	designed-by-ai_skills	skills/design-mobile-apps	mobile	458.3K	new
+react-native-design	wshobson_agents	plugins/ui-design/skills/react-native-design	mobile	14.7K	new
+responsive-design	wshobson_agents	plugins/ui-design/skills/responsive-design	mobile	19.4K	new
+mobile-native	emilkowalski_skills	skills/mobile-native	mobile	20.8K	new
+expo-design-system	expo_skills	plugins/expo/skills/expo-design-system	mobile	9.7K	new

@@ -1,0 +1,5 @@
+.tmp-clone/
+.backup-originals/
+.disabled-slop/
+.repo/
+index.json
