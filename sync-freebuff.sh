@@ -3,8 +3,16 @@
 # support (Freebuff, Codex, anything that only reads Agent Skills).
 #
 # Writes a SKILL.md per command into ~/.agents/skills/. The body is the command
-# file itself, so Claude Code and Freebuff run identical instructions from a
-# single source of truth. Re-run after editing any command file.
+# file itself, so Claude Code and the other agent run identical instructions
+# from a single source of truth. Re-run after editing any command file.
+#
+# NOT part of the standard install. The three skills cost roughly 800
+# characters of context in every session of the consuming agent, because
+# ~/.agents/skills is auto-scanned. That is cheap next to a 321-skill library,
+# but it is not free — so this is opt-in.
+#
+#   ./sync-freebuff.sh              install the three skills
+#   ./sync-freebuff.sh --remove     remove them again
 set -euo pipefail
 
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -12,6 +20,17 @@ CMD="$HOME/.claude/commands"
 DEST="$HOME/.agents/skills"
 
 mkdir -p "$DEST"
+
+if [[ "${1:-}" == "--remove" ]]; then
+  for n in design design-interview design-skills; do
+    if [[ -d "$DEST/$n" ]]; then
+      rm -rf "$DEST/$n"
+      echo "  removed  $n"
+    fi
+  done
+  echo "→ $DEST restored to its previous state"
+  exit 0
+fi
 
 sync_one() {
   local name="$1"
@@ -47,7 +66,10 @@ echo
 echo "→ ~/.agents/skills jetzt:"
 for d in "$DEST"/design "$DEST"/design-interview "$DEST"/design-skills; do
   [ -d "$d" ] && echo "  $(basename "$d")"
-done    # Sanity: frontmatter must parse and the body must match the command file
+done
+echo
+echo "  Diese Skills werden in jeder Session des Agenten geladen (~800 Zeichen)."
+echo "  Entfernen mit: ./sync-freebuff.sh --remove"    # Sanity: frontmatter must parse and the body must match the command file
 python3 - <<'PY'
 import pathlib, re, sys
 home = pathlib.Path.home()

@@ -478,6 +478,12 @@ def selftest() -> int:
     data = json.loads(idx.read_text(encoding="utf-8"))
     have = {s["slug"] for s in data["skills"]}
 
+    # A partial install cannot satisfy the ranking cases. Say so once, up front,
+    # instead of reporting a wall of failures that look like engine bugs.
+    expected_slugs = {s for _, _, s in CASES if s}
+    absent = sorted(expected_slugs - have)
+    partial = len(absent) > 0
+
     fails = 0
     for task, want_doms, want_slug in CASES:
         doms = set(detect_domains(task, None))
@@ -489,24 +495,33 @@ def selftest() -> int:
             fails += 1
         extra = ""
         if want_slug:
-            scored = []
-            for sl in data["skills"]:
-                if sl["slug"] in EXCLUDE_SLUGS:
-                    continue
-                s = score_skill(sl, tokens(task), list(combined), [])
-                s += coverage_bonus(sl, list(combined))
-                if s > 0:
-                    scored.append((s, sl))
-            scored.sort(key=lambda x: -x[0])
-            top = [sl["slug"] for _, sl in scored[:8]]
-            if want_slug not in top:
-                fails += 1
-                extra = f"  | '{want_slug}' not in top8: {top[:5]}"
-                status = "FAIL"
+            if want_slug not in have:
+                status = "skip"
+                extra = f"  | {want_slug} not installed"
             else:
-                extra = f"  | {want_slug} in top8"
+                scored = []
+                for sl in data["skills"]:
+                    if sl["slug"] in EXCLUDE_SLUGS:
+                        continue
+                    s = score_skill(sl, tokens(task), list(combined), [])
+                    s += coverage_bonus(sl, list(combined))
+                    if s > 0:
+                        scored.append((s, sl))
+                scored.sort(key=lambda x: -x[0])
+                top = [sl["slug"] for _, sl in scored[:8]]
+                if want_slug not in top:
+                    fails += 1
+                    extra = f"  | {want_slug} not in top8: {top[:5]}"
+                    status = "FAIL"
+                else:
+                    extra = f"  | {want_slug} in top8"
         print(f"{status}  {task[:46]:46} -> {','.join(sorted(combined))}{extra}")
+
     print()
+    if partial:
+        print(f"note: {len(absent)} expected skill(s) not installed: {', '.join(absent)}")
+        print("      those cases are skipped, not failed. run './install.sh' for a full set.")
+        print()
     print(f"selftest: {'PASS' if fails == 0 else f'{fails} FAILURES'}")
     return 0 if fails == 0 else 1
 

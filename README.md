@@ -1,24 +1,44 @@
+<div align="center">
+
 # Design Skill Library
 
-**316 curated design agent skills for Claude Code and every Agent-Skills-compatible
-client — loaded on demand, orchestrated autonomously.**
+**321 curated design agent skills.<br>Loaded on demand, orchestrated autonomously.**
 
-Installing 100+ design skills the normal way means every one of their descriptions sits
-in your context at every session start, whether you need them or not. This library
-inverts that: the skills live outside any directory an agent scans, and a single
-`/design` command picks and loads the right ones for the task at hand.
+[Quick start](#quick-start) · [`/design`](#design--the-autonomous-orchestrator) · [`/design-interview`](#design-interview--for-non-designers) · [Anti-slop](#anti-slop-gate) · [Deutsch](README.de.md)
+
+</div>
+
+---
+
+<div align="center">
+
+| | |
+|---|---|
+| **Skills** | 321 |
+| **Sources** | 74 repositories |
+| **Context at startup** | 1 description, not 321 |
+| **Vendored content** | none — fetched at install |
+
+</div>
+
+---
+
+## The problem
+
+Installing design skills the normal way puts every description in your context at
+session start, whether you need it or not.
+
+This library inverts that. The skills sit in a directory no agent scans. A single
+`/design` command reads the task, decides what kind of work it is, loads the right
+skills, and builds.
 
 ```
-Context at startup:  1 skill description
-                     instead of 316
-
-Skills available:    316
-Fetches:             from their original repos, at install time
+Context at startup:  1 skill description        (not 321)
+Loaded per task:     2–5 skills, on demand     (~21 KB)
 ```
 
 > This repository contains **no third-party skill content**. `install.sh` fetches each
-> curated skill directly from its own GitHub repository. See
-> [Licensing](#licensing).
+> curated skill from its own GitHub repository at install time.
 
 ---
 
@@ -27,34 +47,22 @@ Fetches:             from their original repos, at install time
 ```bash
 git clone https://github.com/mertgoevse-wq/design-skill-library
 cd design-skill-library
-./install.sh                       # fetch all 316 skills (~30 MB)
-./install.sh gsap-core interface-design   # or just what you need
-python3 build-index.py             # generate the index
+
+./install.sh                               # all 321 skills (~30 MB)
+./install.sh gsap-core interface-design    # or only what you need
+python3 build-index.py                     # generate the index
 ```
 
-Then install the three command files and the router skill:
+Register the commands and the router:
 
 ```bash
 cp commands/*.md ~/.claude/commands/
 cp -R skills/design-library ~/.claude/skills/
 ```
 
-**Freebuff, Codex, Cursor, Gemini CLI and anything else without slash commands:**
-run `./sync-freebuff.sh`. It writes the same three commands into `~/.agents/skills/` as
-skills, stripping the command frontmatter so the result is a valid `SKILL.md`. The body
-is the command file verbatim, so both clients execute identical instructions from one
-source of truth.
-
-```bash
-./sync-freebuff.sh
-#   design             frontmatter + 187 lines, contents match
-#   design-interview   frontmatter + 65 lines, contents match
-#   design-skills      frontmatter + 99 lines, contents match
-```
-
-Re-run it after editing any command file. The script verifies on every run that each
-skill has exactly one frontmatter block and a body identical to its command file, and
-exits non-zero if not.
+**Freebuff and other agents without slash commands** — `./sync-freebuff.sh` writes the
+same three commands into `~/.agents/skills/` as skills. Opt-in, because that directory is
+auto-scanned: `--remove` undoes it.
 
 ---
 
@@ -65,30 +73,27 @@ exits non-zero if not.
 /design redesign our analytics dashboard, dense data, dark mode --n=8
 /design onboarding flow for a banking app --style=trustworthy
 /design a landing page for a coffee subscription --deep
-/design make me an app                            # vague -> guided interview
+/design make me an app                            # vague → guided interview
 ```
 
-You describe the outcome. The orchestrator does the rest:
+You describe the outcome. The orchestrator does the rest.
 
-1. **Classify** — determines which domains the task spans: `ui`, `ux`, `visual`,
-   `motion`, `3d`, `game`, `dataviz`, `mobile`, `a11y`, `review`, `marketing`, `code`.
-2. **Select** — `select-skills.py` scores all 316 skills against the task, keeps
-   category diversity, and returns a ranked shortlist. The orchestrator overrides it
-   when its own read is better.
-3. **Load** — reads each selected `SKILL.md` *and* the `references/` directories it
-   points to. Skipping the references is the most common way these skills get misapplied.
-4. **Execute** — works in tracks. Foundations run alone first; build, motion and
-   data/3D/game then run **as parallel subagents**; verification runs last.
-5. **Enforce** — anti-slop rules are binding and override any skill that conflicts.
+| step | what happens |
+|---|---|
+| **Classify** | determines the domains: `ui` `ux` `visual` `motion` `3d` `game` `dataviz` `mobile` `a11y` `review` `marketing` `code` |
+| **Select** | scores all 321 skills, caps per category, sizes 2–3 per domain |
+| **Load** | reads each `SKILL.md` **and** the `references/` it points to |
+| **Execute** | foundations alone first, then build + motion + data/3D **in parallel**, verification last |
+| **Enforce** | anti-slop rules, overriding any skill that conflicts |
 
-It writes real code: components, shaders, styles, motion. Not a plan.
+It writes real code — components, shaders, styles, motion. Not a plan.
 
 ### Flags
 
-| Flag | Effect |
+| flag | effect |
 |---|---|
-| `--n=<count>` | how many skills to load (default: auto, 2–3 per active domain, max 12) |
-| `--domain=a,b` | force the domain list instead of inferring it |
+| `--n=<count>` | how many skills to load (default: auto, max 12) |
+| `--domain=a,b` | force the domain list |
 | `--style=<name>` | force a visual direction |
 | `--fast` | single pass, no subagents |
 | `--deep` | force a large selection |
@@ -96,45 +101,41 @@ It writes real code: components, shaders, styles, motion. Not a plan.
 
 ### Selection engine
 
-Usable on its own:
+Works on its own:
 
 ```bash
-python3 select-skills.py "pricing page for a SaaS" --n=6
+python3 select-skills.py "pricing page for a saas" --n=6
 python3 select-skills.py "3d hero" --domain=3d,motion --style=atmospheric
-python3 select-skills.py "saas dashboard" --style=dense-data --json
+python3 select-skills.py --selftest        # 11 cases
 ```
 
-Domain detection uses weighted, word-boundary-matched cues, so "photographer" does not
-trigger the chart domain and "apple" does not trigger the app domain. Category caps
-prevent a single category from dominating the shortlist.
-
-It also detects **industry** as a modifier — `fintech`, `ecommerce`, `healthcare`,
-`education`, `enterprise`, `portfolio` — and excludes skills that promote banned
-aesthetics from selection entirely.
-
-```bash
-python3 select-skills.py --selftest   # 11 cases, verifies domains and top-8 ranking
-```
+Weighted word-boundary matching, so "photographer" does not trigger the chart domain
+and "apple" does not trigger the app domain. Industry modifiers — `fintech`,
+`ecommerce`, `healthcare`, `education`, `enterprise`, `portfolio` — inform selection
+without competing for a primary domain slot.
 
 ---
 
 ## `/design-interview` — for non-designers
 
-When you cannot articulate a look, this asks in plain language and offers named
-directions matched to your project type.
+When you cannot name a look, this asks in plain language and offers named directions
+matched to your project type.
 
 ```
-/design-interview
 /design-interview a small shop for handmade ceramics
 ```
 
-Maximum two rounds. For a SaaS it offers `quiet-professional` / `dense-data` /
-`friendly-approachable`; for a portfolio `showcase` / `type-led` / `experimental`; for
-a game `high-energy` / `atmospheric` / `retro-analog`. Each is described in one plain
-sentence with no design vocabulary.
+| project type | directions offered |
+|---|---|
+| SaaS / dashboard | `quiet-professional` · `dense-data` · `friendly-approachable` |
+| Marketing site | `editorial-bold` · `minimal-calm` · `expressive-motion` |
+| Consumer app | `warm-human` · `swift-functional` · `playful` |
+| Game | `high-energy` · `atmospheric` · `retro-analog` |
+| Portfolio | `showcase` · `type-led` · `experimental` |
+| Shop | `trustworthy` · `premium` · `bargain-loud` |
 
-You can always skip it — the orchestrator picks a defensible default, says which one and
-why, and continues.
+Two rounds maximum, no design vocabulary. Skippable — the orchestrator picks a
+defensible default, says which, and continues.
 
 ---
 
@@ -142,79 +143,47 @@ why, and continues.
 
 ```
 /design-skills list              overview + what is symlinked
-/design-skills search motion     find skills by term
+/design-skills search motion     find by term
 /design-skills select <task>     run the selection engine
-/design-skills enable polish     always auto-load this skill
+/design-skills enable polish     always auto-load
 /design-skills disable polish    back to on-demand
 /design-skills slop              run the anti-slop gate
 /design-skills rebuild           reinstall and regenerate
 ```
-
-`enable` symlinks a skill into `~/.claude/skills/` so it loads automatically from then on
-— and costs context at every startup. `disable` removes only the symlink; the content
-stays in the library and remains reachable through `/design`.
 
 ---
 
 ## Anti-slop gate
 
 The library is deliberately free of current AI-design clichés. `slop-scan.sh` enforces
-this and **exits 1** on violation.
+it and **exits 1** on violation.
 
-**Forbidden:** Liquid Glass · Glassmorphism · Neumorphism · Brutalism · Skeuomorphism ·
+**Forbidden** — Liquid Glass · Glassmorphism · Neumorphism · Brutalism · Skeuomorphism ·
 frosted-glass shells · generic AI gradients · undifferentiated uniform spacing · stock
 3D buttons · interchangeable buzzword copy.
 
-**Expected:** intentional type hierarchy · a real grid · a systematic colour system
-(prefer OKLCH) with checked contrast · flat surfaces with functional depth · motion
-that earns its place · one detail that could not appear in any other project.
+**Expected** — intentional type hierarchy · a real grid · a systematic colour system
+(prefer OKLCH) with checked contrast · flat surfaces with functional depth · motion that
+earns its place · one detail that could not appear in any other project.
 
-The gate distinguishes **mention** from **promotion**. A skill that says *"avoid
-glassmorphism"* passes. A skill offering *"styles: glassmorphism, brutalism,
-neumorphism"* fails. Verified against four fixtures.
+The gate distinguishes **mention** from **promotion**:
 
-Skills disabled by this rule sit in `.disabled-slop/` locally with a
-`WHY-DISABLED.md` and a reactivation snippet — nothing is deleted.
+```
+"Avoid glassmorphism"                        → passes
+"Styles: glassmorphism, brutalism, neumorphism" → fails
+```
+
+Skills the gate rejects are disabled, not deleted — each keeps its content with a
+`WHY-DISABLED.md` and a reactivation snippet.
 
 ---
 
-## Keeping it current
+## What's in the library
 
-```bash
-./auto-update.sh              # refresh from source, run gate + self-test, rebuild index
-./auto-update.sh --check      # report only, change nothing
-```
+Curated from 74 upstream repositories across three waves.
 
-It refreshes every installed skill from its source, runs the anti-slop gate, runs the
-selection self-test, rebuilds the index, and exits non-zero if anything failed. It never
-pushes — publishing stays a manual step. Logs land in `logs/`.
-
-**Scheduling.** Where cron or a systemd user bus exists, schedule `auto-update.sh`
-directly. In containers and WSL, where neither is available, use the session-start hook —
-it is a no-op unless 30 days have passed, and it never blocks or fails the session:
-
-```jsonc
-// ~/.claude/settings.json
-{
-  "hooks": {
-    "SessionStart": [{
-      "hooks": [{ "type": "command", "command": "/path/to/update-on-start.sh" }]
-    }]
-  }
-}
-```
-
-The wrapper holds a lock file so concurrent sessions do not race, and records the
-attempt timestamp so a failure does not retry hourly.
-
----
-
-## What is in the library
-
-Curated from **27+ upstream repositories** across three waves.
-
-| Category | Count | Covers |
-|---|---|---|
+| category | n | covers |
+|---|---:|---|
 | `motion` | 61 | GSAP and ScrollTrigger, animation principles, timing, per-element and per-industry playbooks |
 | `ux` | 25 | research, personas, journeys, forms, onboarding, HCI laws |
 | `review` | 18 | critique, audits, refactoring, design debt |
@@ -235,63 +204,81 @@ Curated from **27+ upstream repositories** across three waves.
 | `dataviz` + `game` + `2d` | 5 | charts, HUDs, PixiJS |
 | `copy` + `research` + `iterate` | 8 | UX writing, empathy maps, variants, stress tests |
 
-A skill qualified if it had at least one of:
+A skill qualified on at least one of: a **concrete checkable rule set** rather than
+motivational prose; real traction; a **gap others did not fill**; no duplicate of
+impeccable, taste-skill or ui-ux-pro-max.
 
-- a concrete, checkable rule set rather than motivational prose
-- real install numbers on skills.sh or notable GitHub traction
-- a gap others did not fill — critique, motion depth, HCI, research were often missing
-- no duplicate — overlap with impeccable, taste-skill and ui-ux-pro-max was merged
-  rather than taken twice
+Deliberately excluded: prompt collections without substance, marketing buzzword skills,
+and every skill of a banned aesthetic.
 
-Deliberately **excluded**: prompt collections without technical substance, marketing
-buzzword skills, and every skill of the banned aesthetics.
+---
+
+## Keeping it current
+
+```bash
+./auto-update.sh              # refresh from source, gate + selftest, rebuild index
+./auto-update.sh --check      # report only
+./release.sh                  # stage, verify, tag, publish
+./release.sh --dry-run        # show what would happen
+```
+
+`release.sh` refuses to publish unless the anti-slop gate passes, the self-test passes,
+the index builds, and no third-party content has slipped into the repo.
+
+**Scheduling.** Where cron or a systemd user bus exists, schedule `auto-update.sh`
+directly. Elsewhere, use the session-start hook — a no-op unless 30 days have passed,
+and it never blocks or fails a session:
+
+```jsonc
+// ~/.claude/settings.json
+{
+  "hooks": {
+    "SessionStart": [{
+      "hooks": [{ "type": "command", "command": "/path/to/update-on-start.sh" }]
+    }]
+  }
+}
+```
 
 ---
 
 ## Files
 
 ```
-design-skill-library/
-├── CURATION.tsv          wave 1  — design, UX, motion, A11y, brand
-├── CURATION2.tsv         wave 2  — anti-slop, grids, motion, Figma, research
-├── CURATION3.tsv         wave 3  — motion depth, 3D/WebGL, game UI, dataviz, platforms
-├── install.sh            fetch curated skills from their source repos
-├── select-skills.py      selection engine (with --selftest)
-├── slop-scan.sh          anti-slop gate
-├── sync-freebuff.sh      expose the commands to agents without slash commands
-├── auto-update.sh        refresh + gate + selftest + index
-├── update-on-start.sh    session-start wrapper for cron-less environments
-├── build-index.py        generate INDEX.md + index.json
-├── build-attribution.py  generate ATTRIBUTION.md
-├── migrate-existing.sh   move existing skills into the library
-├── ATTRIBUTION.md        sources, licenses, commit hashes
-├── commands/
-│   ├── design.md             /design
-│   ├── design-interview.md   /design-interview
-│   └── design-skills.md      /design-skills
-└── skills/
-    └── design-library/       router skill
+CURATION.tsv / 2 / 3     the catalogue — 262 curated entries across three waves
+install.sh               fetch curated skills from their source repos
+select-skills.py         selection engine, with --selftest
+slop-scan.sh             anti-slop gate
+sync-freebuff.sh         expose commands to agents without slash commands
+auto-update.sh           refresh + gate + selftest + index
+update-on-start.sh       session-start wrapper for cron-less environments
+release.sh               stage, verify, tag, publish
+build-index.py           generate INDEX.md + index.json
+build-attribution.py     generate ATTRIBUTION.md
+migrate-existing.sh      move existing skills into the library
+commands/                design, design-interview, design-skills
+skills/design-library/   router skill
 ```
 
-`INDEX.md` and `index.json` are generated locally by `build-index.py` and are not
-committed — they only exist once you have installed the skills.
+`INDEX.md` and `index.json` are generated locally and not committed — they exist only
+after you install the skills.
 
 Development notes, architecture decisions and the migration record live in a separate
-private repository. This repo ships the tool only.
+**private** repository. This repo ships the tool.
 
 ---
 
 ## Licensing
 
-This repository contains **only files authored for this project**: the installer, the
+This repository contains **only files authored for this project** — the installer, the
 selection engine, the manifests, the slash commands and the router skill. Those are
-covered by the `LICENSE` in this repo.
+covered by the `LICENSE` here.
 
 The design skills themselves are **not redistributed here**. `install.sh` fetches each
-one from its original repository, where its own license and copyright apply. Sources and
-commit hashes are recorded in [ATTRIBUTION.md](ATTRIBUTION.md) — check the license there
-before using a skill commercially.
+from its original repository, where its own licence and copyright apply. Sources and
+commit hashes: **[ATTRIBUTION.md](ATTRIBUTION.md)**. Check the licence there before
+using a skill commercially.
 
-Skills whose upstream repository states no license, or restricts redistribution, are
+Skills whose upstream repository states no licence, or restricts redistribution, are
 excluded from the manifests entirely. They remain usable locally if you already have
 them, but `install.sh` will not fetch them.
