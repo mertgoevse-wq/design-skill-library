@@ -1,189 +1,238 @@
 # Design Skill Library
 
-**166 kuratierte Design-Agent-Skills für Claude Code und jeden OpenAI-Agent-Skills-kompatiblen Client — on-demand statt im Kontext.**
+**316 curated design agent skills for Claude Code and every Agent-Skills-compatible
+client — loaded on demand, orchestrated autonomously.**
 
-Die Skills in `~/.claude/skills/` werden bei **jeder** Session automatisch geladen. Wer
-30 bis 100 Design-Skills parallel installiert hat, zahlt dafür bei jedem Start Kontext,
-auch wenn davon nur einer gebraucht wird.
-
-Diese Bibliothek löst das über einen **Router**: die Skills liegen physisch in einem
-Verzeichnis, das kein Agent scannt, und werden erst geladen, wenn sie wirklich gebraucht
-werden. Ein einziger `/design`-Befehl wählt automatisch die passenden aus.
+Installing 100+ design skills the normal way means every one of their descriptions sits
+in your context at every session start, whether you need them or not. This library
+inverts that: the skills live outside any directory an agent scans, and a single
+`/design` command picks and loads the right ones for the task at hand.
 
 ```
-Kontext beim Start:   1 Skill-Beschreibung
-                     statt 166
-Skills verfügbar:    166 (lokal) / 154 (in diesem Repo)
+Context at startup:  1 skill description
+                     instead of 316
+
+Skills available:    316
+Fetches:             from their original repos, at install time
 ```
+
+> This repository contains **no third-party skill content**. `install.sh` fetches each
+> curated skill directly from its own GitHub repository. See
+> [Licensing](#licensing).
 
 ---
 
-## Was drin ist
-
-| Kategorie | Anzahl | Beispiele |
-|---|---|---|
-| `core` | ~20 | Anti-Slop-Gates, Interface-Design, Frontend-Craft |
-| `foundations` | ~10 | Hierarchie, Icons, Shadows, Gestaltungsgesetze |
-| `typography` | ~8 | Schriftpaarung, Scales, Web-Typografie, Messbreite |
-| `color` | ~9 | OKLCH, Paletten, Farbsysteme, Dark Mode |
-| `layout` | ~14 | Grid, Spacing, Editorial, Image-First, Frames |
-| `motion` | ~22 | GSAP, Scroll, Microinteractions, HCI-Laws, Apple-Motion |
-| `a11y` | ~10 | WCAG 2.2, ARIA, Screenreader, inklusives Design |
-| `design-system` | ~14 | Tokens, Components, Theming, Governance, Naming |
-| `review` | ~18 | Critique, Audits, Refactoring, Design-Debt |
-| `ux` | ~20 | Research, Personas, Journeys, Formulare, Onboarding |
-| `figma` | ~7 | Figma→Code, Library-Generierung, SwiftUI-Bridge |
-| `mobile` | ~10 | Native iOS/Android, React Native, responsive |
-| `marketing` | ~15 | Landingpage, Pricing, Copy, Brand, CRO |
-| `quality` | ~5 | Web-Vitals, Performance, QA, Accessibility-Plan |
-| `iterate` | ~3 | Varianten bauen, Zustands-Stresstests |
-
-Gebaut aus **27 Quell-Repos** — darunter Anthropic, Vercel, Emil Kowalski, Meng To,
-Julien Thibeaut, Jakob Krehel, Addy Osmani, Google Stitch und weitere.
-Vollständige Aufstellung mit Commit-Hashes und Lizenzen: **[ATTRIBUTION.md](ATTRIBUTION.md)**.
-
----
-
-## Nutzung
-
-### `/design <Auftrag>` — der Haupteinstieg
-
-Ein einziger Befehl für alles Designrelevante:
-
-```
-/design Landingpage für ein Preisanbieter-Tool bauen
-/design Animationen im Onboarding auditieren
-/design WCAG-Audit der Checkbox-Gruppe
-/design Dashboard mit Farbsystem und Dark Mode
-```
-
-Ablauf:
-
-1. **Auswahl** — der Befehl durchsucht `index.json` nach Relevanz und schlägt 2–5 Skills vor
-2. **Laden** — nur diese werden per `Read` geladen, inkl. aller `references/`
-3. **Anwenden** — Foundations zuerst, dann Ausführung, dann Prüfung
-4. **Parallelisieren** — unabhängige Teilaufgaben laufen als parallele Subagenten
-5. **Prüfen** — Anti-Slop-Gate läuft mit
-
-Präzedenz bei Widersprüchen: Grundlagen-Skills schlagen Effekt-Skills, Anti-Slop-Skills
-schlagen jeden Stil-Skill, Nutzer-Vorgaben schlagen alles.
-
-### `/design-skills <befehl>` — Bibliotheksverwaltung
-
-```
-/design-skills list              Übersicht + was symlinked ist
-/design-skills search motion     Skills nach Begriff durchsuchen
-/design-skills enable polish     dauerhaft auto-geladen machen
-/design-skills disable polish    wieder aus dem Auto-Laden nehmen
-/design-skills slop              Anti-Slop-Gate ausführen
-/design-skills rebuild           Index neu erzeugen
-```
-
-`enable` legt einen Symlink in `~/.claude/skills/` an — der Skill ist dann in jeder
-Session verfügbar, kostet aber entsprechend Kontext. `disable` entfernt nur den
-Symlink; der Inhalt bleibt in der Bibliothek und ist über `/design` weiter nutzbar.
-
----
-
-## Installation
+## Quick start
 
 ```bash
 git clone https://github.com/mertgoevse-wq/design-skill-library
 cd design-skill-library
-./install.sh
+./install.sh                       # fetch all 316 skills (~30 MB)
+./install.sh gsap-core interface-design   # or just what you need
+python3 build-index.py             # generate the index
 ```
 
-Ohne die geklonten Quell-Repos holt `install.sh` die Skills aus `CURATION.tsv` /
-`CURATION2.tsv`. Wer nur den fertigen Snapshot nutzen will, kopiert `skills/` direkt:
+Then install the three command files and the router skill:
 
 ```bash
-cp -r skills/* ~/.claude/design-skill-library/skills/
-python3 build-index.py
+cp commands/*.md ~/.claude/commands/
+cp -R skills/design-library ~/.claude/skills/
 ```
 
-Für Codex, Cursor, Gemini CLI und alle anderen Clients, die das Agent-Skills-Format
-lesen, funktioniert `skills/` genauso — einfach in das jeweilige Skill-Verzeichnis legen.
-
-### Router-Skill
-
-`skills/design-library/SKILL.md` muss in `~/.claude/skills/` liegen, damit der Agent die
-Bibliothek kennt. Die Slash-Commands liegen in `~/.claude/commands/`.
+Works the same way in Codex, Cursor, Gemini CLI and any other client that reads the
+Agent Skills format — put `skills/` wherever that client looks.
 
 ---
 
-## Anti-Slop-Gate
+## `/design` — the autonomous orchestrator
 
-Die Sammlung ist bewusst frei von den aktuellen KI-Design-Klischees. `slop-scan.sh`
-prüft das automatisch und **fehlschlägt** bei Treffern:
-
-**Verboten:** Liquid Glass · Glassmorphism · Neumorphism · Brutalism · Skeuomorphie ·
-Frosted-Glass-Shells · generische AI-Gradienten
-
-**Erlaubt und erwünscht:** klare typografische Hierarchie mit Absicht · echte
-Rasterstruktur · OKLCH-Farbsysteme mit geprüftem Kontrast · Editorial-Layout ·
-funktionale Tiefe statt Deko · ruhige, gezielte Bewegung · ein erkennbarer Charakter
-
-```bash
-./slop-scan.sh    # exit 0 = sauber, exit 1 = Verstoß gefunden
+```
+/design build a 3d game hero with shader effects and a HUD
+/design redesign our analytics dashboard, dense data, dark mode --n=8
+/design onboarding flow for a banking app --style=trustworthy
+/design a landing page for a coffee subscription --deep
+/design make me an app                            # vague -> guided interview
 ```
 
-`/design` erzwingt dieselben Regeln auch ohne Skript — Anti-Slop-Skills
-(`no-ai-design-slop`, `hallmark`, `audit-ai-design-slop`) haben dort Vorrang vor
-allen Stil-Skills.
+You describe the outcome. The orchestrator does the rest:
+
+1. **Classify** — determines which domains the task spans: `ui`, `ux`, `visual`,
+   `motion`, `3d`, `game`, `dataviz`, `mobile`, `a11y`, `review`, `marketing`, `code`.
+2. **Select** — `select-skills.py` scores all 316 skills against the task, keeps
+   category diversity, and returns a ranked shortlist. The orchestrator overrides it
+   when its own read is better.
+3. **Load** — reads each selected `SKILL.md` *and* the `references/` directories it
+   points to. Skipping the references is the most common way these skills get misapplied.
+4. **Execute** — works in tracks. Foundations run alone first; build, motion and
+   data/3D/game then run **as parallel subagents**; verification runs last.
+5. **Enforce** — anti-slop rules are binding and override any skill that conflicts.
+
+It writes real code: components, shaders, styles, motion. Not a plan.
+
+### Flags
+
+| Flag | Effect |
+|---|---|
+| `--n=<count>` | how many skills to load (default: auto, 2–3 per active domain, max 12) |
+| `--domain=a,b` | force the domain list instead of inferring it |
+| `--style=<name>` | force a visual direction |
+| `--fast` | single pass, no subagents |
+| `--deep` | force a large selection |
+| `--interview` | run the guided interview first |
+
+### Selection engine
+
+Usable on its own:
+
+```bash
+python3 select-skills.py "pricing page for a SaaS" --n=6
+python3 select-skills.py "3d hero" --domain=3d,motion --style=atmospheric
+python3 select-skills.py "saas dashboard" --style=dense-data --json
+```
+
+Domain detection uses word boundaries, so "photographer" does not trigger the chart
+domain. Category caps prevent a single category from dominating the shortlist.
 
 ---
 
-## Aufbau
+## `/design-interview` — for non-designers
+
+When you cannot articulate a look, this asks in plain language and offers named
+directions matched to your project type.
+
+```
+/design-interview
+/design-interview a small shop for handmade ceramics
+```
+
+Maximum two rounds. For a SaaS it offers `quiet-professional` / `dense-data` /
+`friendly-approachable`; for a portfolio `showcase` / `type-led` / `experimental`; for
+a game `high-energy` / `atmospheric` / `retro-analog`. Each is described in one plain
+sentence with no design vocabulary.
+
+You can always skip it — the orchestrator picks a defensible default, says which one and
+why, and continues.
+
+---
+
+## `/design-skills` — library management
+
+```
+/design-skills list              overview + what is symlinked
+/design-skills search motion     find skills by term
+/design-skills select <task>     run the selection engine
+/design-skills enable polish     always auto-load this skill
+/design-skills disable polish    back to on-demand
+/design-skills slop              run the anti-slop gate
+/design-skills rebuild           reinstall and regenerate
+```
+
+`enable` symlinks a skill into `~/.claude/skills/` so it loads automatically from then on
+— and costs context at every startup. `disable` removes only the symlink; the content
+stays in the library and remains reachable through `/design`.
+
+---
+
+## Anti-slop gate
+
+The library is deliberately free of current AI-design clichés. `slop-scan.sh` enforces
+this and **exits 1** on violation.
+
+**Forbidden:** Liquid Glass · Glassmorphism · Neumorphism · Brutalism · Skeuomorphism ·
+frosted-glass shells · generic AI gradients · undifferentiated uniform spacing · stock
+3D buttons · interchangeable buzzword copy.
+
+**Expected:** intentional type hierarchy · a real grid · a systematic colour system
+(prefer OKLCH) with checked contrast · flat surfaces with functional depth · motion
+that earns its place · one detail that could not appear in any other project.
+
+The gate distinguishes **mention** from **promotion**. A skill that says *"avoid
+glassmorphism"* passes. A skill offering *"styles: glassmorphism, brutalism,
+neumorphism"* fails. Verified against four fixtures.
+
+Skills disabled by this rule sit in `.disabled-slop/` locally with a
+`WHY-DISABLED.md` and a reactivation snippet — nothing is deleted.
+
+---
+
+## What is in the library
+
+Curated from **27+ upstream repositories** across three waves.
+
+| Category | Count | Covers |
+|---|---|---|
+| `motion` | 61 | GSAP and ScrollTrigger, animation principles, timing, per-element and per-industry playbooks |
+| `ux` | 25 | research, personas, journeys, forms, onboarding, HCI laws |
+| `review` | 18 | critique, audits, refactoring, design debt |
+| `marketing` | 18 | landing, pricing, CRO, copy, brand, onboarding |
+| `3d` | 16 | Three.js, shaders, R3F, Babylon, WebGL, postprocessing |
+| `mobile` | 15 | iOS, Android, macOS, iPadOS, watchOS, tvOS, visionOS, React Native |
+| `visual` | 13 | brand kits, diagrams, logos, image direction |
+| `core` | 11 | anti-slop gates, interface design, frontend craft |
+| `design-system` | 11 | tokens, components, theming, dark mode, governance |
+| `a11y` | 7 | WCAG 2.2, ARIA, screen readers, accessible motion |
+| `layout` | 7 | grid, spacing, editorial, image-first |
+| `process` + `hci` | 12 | design ops, Fitts, Miller, Hick, Doherty, Zeigarnik |
+| `figma` | 6 | design-to-code, library generation, SwiftUI bridge |
+| `foundations` | 5 | hierarchy, spacing scales, icons, shadows |
+| `quality` | 5 | Web Vitals, performance, QA |
+| `design-doc` | 5 | DESIGN.md, Figma design systems |
+| `typography` + `color` | 7 | type scales, pairing, OKLCH, palettes |
+| `dataviz` + `game` + `2d` | 5 | charts, HUDs, PixiJS |
+| `copy` + `research` + `iterate` | 8 | UX writing, empathy maps, variants, stress tests |
+
+A skill qualified if it had at least one of:
+
+- a concrete, checkable rule set rather than motivational prose
+- real install numbers on skills.sh or notable GitHub traction
+- a gap others did not fill — critique, motion depth, HCI, research were often missing
+- no duplicate — overlap with impeccable, taste-skill and ui-ux-pro-max was merged
+  rather than taken twice
+
+Deliberately **excluded**: prompt collections without technical substance, marketing
+buzzword skills, and every skill of the banned aesthetics.
+
+---
+
+## Files
 
 ```
 design-skill-library/
-├── INDEX.md              alle Skills als Tabelle (generiert)
-├── index.json            Metadaten für den Router
-├── CURATION.tsv          Welle 1 — Auswahlmanifest
-├── CURATION2.tsv         Welle 2 — Auswahlmanifest
-├── ATTRIBUTION.md        Quellen, Lizenzen, Commits
-├── install.sh            Skills aus den Manifesten installieren
-├── build-index.py        INDEX.md + index.json erzeugen
-├── build-attribution.py  ATTRIBUTION.md erzeugen
-├── slop-scan.sh          Anti-Slop-Gate
-├── export-repo.sh        veröffentlichbaren Snapshot bauen
-├── migrate-existing.sh   Bestands-Skills in die Bibliothek überführen
+├── CURATION.tsv          wave 1  — design, UX, motion, A11y, brand
+├── CURATION2.tsv         wave 2  — anti-slop, grids, motion, Figma, research
+├── CURATION3.tsv         wave 3  — motion depth, 3D/WebGL, game UI, dataviz, platforms
+├── install.sh            fetch curated skills from their source repos
+├── select-skills.py      selection engine
+├── slop-scan.sh          anti-slop gate
+├── build-index.py        generate INDEX.md + index.json
+├── build-attribution.py  generate ATTRIBUTION.md
+├── migrate-existing.sh   move existing skills into the library
+├── export-repo.sh        build the publishable snapshot
+├── ATTRIBUTION.md        sources, licenses, commit hashes
 ├── commands/
-│   ├── design.md         /design
-│   └── design-skills.md  /design-skills
+│   ├── design.md             /design
+│   ├── design-interview.md   /design-interview
+│   └── design-skills.md      /design-skills
 └── skills/
-    ├── design-library/   Router-Skill
-    └── <slug>/           die einzelnen Skills
+    └── design-library/       router skill
 ```
 
----
-
-## Auswahlkriterien
-
-Ein Skill kam in die Bibliothek, wenn er mindestens eines erfüllt:
-
-- **Konkretes, überprüfbares Regelwerk** statt Motivationsprosa
-- **Bestehende Installationszahlen** auf skills.sh oder ≥1k GitHub-Sterne
-- **Füllt eine echte Lücke** — Kritik, Motion, A11y, Research, HCI-Laws fehlten oft
-- **Keine Kopie** — Redundanzen zu impeccable, taste-skill und ui-ux-pro-max wurden
-  zusammengeführt statt mehrfach übernommen
-
-Bewusst **nicht** übernommen: reine Prompt-Sammlungen ohne technische Substanz,
-Marketing-Buzzword-Skills, und alle Skills der ausgeschlossenen Ästhetiken.
+`INDEX.md` and `index.json` are generated locally by `build-index.py` and are not
+committed — they only exist once you have installed the skills.
 
 ---
 
-## Lizenz & Urheberrecht
+## Licensing
 
-Diese Bibliothek enthält **fremde** Agent-Skills. Urheberrecht und Lizenz liegen
-bei den jeweiligen Autoren — dieses Repository stellt **keine** eigene Lizenz über
-diese Inhalte.
+This repository contains **only files authored for this project**: the installer, the
+selection engine, the manifests, the slash commands and the router skill. Those are
+covered by the `LICENSE` in this repo.
 
-Quellen ohne erkennbare bzw. restriktive Lizenz (Anthropic, OpenAI, Figma, Vercel und
-weitere) sind **nicht** in diesem Repo enthalten. Sie bleiben lokal in der
-privaten Bibliothek nutzbar, werden aber nicht weiterverbreitet.
+The design skills themselves are **not redistributed here**. `install.sh` fetches each
+one from its original repository, where its own license and copyright apply. Sources and
+commit hashes are recorded in [ATTRIBUTION.md](ATTRIBUTION.md) — check the license there
+before using a skill commercially.
 
-Details je Quelle und Skill: **[ATTRIBUTION.md](ATTRIBUTION.md)**.
-
-Die Projektdateien (`install.sh`, `build-index.py`, `commands/`, `skills/design-library/`,
-die Manifeste) sind neu geschrieben und stehen unter der Lizenz dieses Repositories.
+Skills whose upstream repository states no license, or restricts redistribution, are
+excluded from the manifests entirely. They remain usable locally if you already have
+them, but `install.sh` will not fetch them.

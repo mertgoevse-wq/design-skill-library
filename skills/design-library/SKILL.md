@@ -1,92 +1,103 @@
 ---
 name: design-library
-description: On-demand access to a 224-skill design library (UI/UX, typography, color, motion, accessibility, design systems, Figma, anti-AI-slop). Use when the user asks for a design skill by name, wants to search or browse design skills, or when UI/UX/design work should pull in the right expert skill. Triggers on "design skill", "design library", "ui skill", "ux skill", "/design", or any request to design, critique, review, polish or refine an interface.
+description: On-demand access to a 316-skill design library (UI/UX, typography, color, motion, 3D, game UI, data-viz, accessibility, design systems, Figma, anti-AI-slop). Use when the user asks for a design skill by name, wants to search or browse design skills, or when UI/UX/design work should pull in the right expert skills. Triggers on "design skill", "design library", "ui skill", "ux skill", "/design", or any request to design, critique, review, polish or refine an interface.
 ---
 
-# Design Skill Library — Router
+# Design Skill Library — router
 
-Eine kuratierte Bibliothek von **224 Design-Skills**, die **on demand** geladen werden.
-Die Beschreibungen aller Skills liegen in `index.json` und werden **nicht** automatisch
-in den Kontext geladen. Lade nur die, die du wirklich brauchst.
+A curated library of **316 design skills** loaded **on demand**. Their descriptions
+live in `index.json` and are **not** auto-loaded into context. Load only what a task
+actually needs.
 
-## Speicherort
+## Layout
 
 ```
 ~/.claude/design-skill-library/
-├── index.json        ← Metadaten aller 224 Skills (slug, description, path)
-├── INDEX.md          ← dieselben Daten als Markdown-Tabelle
-├── skills/<slug>/    ← die eigentlichen Skills (SKILL.md + Referenzen)
-├── CURATION.tsv      ← Welle 1 Manifest
-├── CURATION2.tsv     ← Welle 2 Manifest
-├── slop-scan.sh      ← Anti-Slop-Gate
-└── build-index.py    ← Index neu erzeugen
+├── index.json            metadata for all 316 skills (slug, category, description, path)
+├── INDEX.md              the same data as a table
+├── select-skills.py      selection engine — scores skills against a task
+├── CURATION.tsv          wave 1 manifest   (design, UX, motion, A11y, brand)
+├── CURATION2.tsv         wave 2 manifest   (anti-slop, grids, motion, Figma, research)
+├── CURATION3.tsv         wave 3 manifest   (motion depth, 3D/WebGL, game UI, dataviz, platforms)
+├── ATTRIBUTION.md        sources, licenses, commit hashes
+├── slop-scan.sh          anti-slop gate — exit 1 on violation
+├── build-index.py        regenerate INDEX.md + index.json
+├── install.sh            install skills from the manifests
+└── skills/<slug>/        the skills themselves (SKILL.md + references)
 ```
 
-## Wie du einen Skill findest
+## Selecting skills
 
-Nutze `index.json`. Beispiel mit grep:
+Prefer the engine over picking by hand:
 
 ```bash
-# nach einem Begriff suchen
-grep -i -o '"slug": "[^"]*"' ~/.claude/design-skill-library/index.json
-# oder mit python, um Relevanz zu sortieren
-python3 - <<'PY'
-import json, re
-d = json.load(open('/home/mert/.claude/design-skill-library/index.json'))
-q = ['motion', 'animation']
-hits = [s for s in d['skills'] if any(t in s['slug'] + ' ' + s['description'].lower() for t in q)]
-for s in hits[:15]:
-    print(f"{s['slug']:38} {s['description'][:90]}")
-PY
+python3 ~/.claude/design-skill-library/select-skills.py "build a pricing page" --n=6
+python3 ~/.claude/design-skill-library/select-skills.py "3d game hero" --domain=3d,game
+python3 ~/.claude/design-skill-library/select-skills.py "saas dashboard" --style=dense-data
 ```
 
-## Wie du einen Skill lädst
+It detects the task domains, scores every skill, keeps category diversity, and prints
+the load path for each pick. Treat the result as a strong starting point, not gospel.
 
-`Read` die angegebene `path` aus `index.json`. Bei Skills mit Referenzordnern
-(z. B. `*/references/`, `*/assets/`) **auch diese lesen**, wenn SKILL.md darauf verweist.
+## Loading a skill
 
-## Kategorien in der Bibliothek
+`Read` the `path` from `index.json`. **If a SKILL.md references `references/`,
+`assets/` or `templates/`, read those too** — they hold the actual rule catalogue, and
+skipping them is the most common way these skills get misapplied.
 
-| Kategorie | Wofür |
-|---|---|
-| `core` | Grundlagen:anti-slop, Interface-Design, Frontend-Craft |
-| `foundations` | Typografie, Farbe, Hierarchie, Shadows, Icons |
-| `typography` | Schriftpaarung, Scales, Web-Typografie |
-| `color` | Paletten, OKLCH, Farbsysteme, Theme-Mode |
-| `layout` | Grid, Spacing, Editorial, Image-First |
-| `motion` | Animation, GSAP, Scroll, Microinteractions, HCI-Laws |
-| `a11y` | WCAG, ARIA, Screenreader, inklusives Design |
-| `design-system` | Tokens, Components, Theming, Governance |
-| `review` | Critique, Audits, Refactoring, Debt |
-| `ux` | Research, Personas, Journeys, HCI, Onboarding |
-| `figma` | Figma→Code, Design-Generierung, Libraries |
-| `mobile` | Native iOS/Android, React Native, responsive |
-| `marketing` | Landingpage, Pricing, Copy, Brand, CRO |
-| `quality` | Web-Vitals, Performance, QA |
-| `iterate` | Varianten bauen, Stress-Tests |
+## Category map
 
-## Anti-Slop-Regeln (verbindlich)
+| Category | Count | Covers |
+|---|---|---|
+| `motion` | 61 | GSAP, ScrollTrigger, principles, timing, per-element, per-industry |
+| `ux` | 25 | research, personas, journeys, forms, onboarding, HCI |
+| `review` | 18 | critique, audits, refactoring, design debt |
+| `marketing` | 18 | landing, pricing, CRO, copy, brand, onboarding |
+| `3d` | 16 | Three.js, shaders, R3F, Babylon, WebGL, postprocessing |
+| `mobile` | 15 | iOS, Android, watchOS, tvOS, visionOS, React Native, responsive |
+| `visual` | 13 | brand kits, diagrams, logos, image direction |
+| `core` | 11 | anti-slop, interface design, frontend craft |
+| `design-system` | 11 | tokens, components, theming, dark mode, governance |
+| `a11y` | 7 | WCAG, ARIA, screen readers, accessible motion |
+| `layout` | 7 | grid, spacing, editorial, image-first |
+| `process` / `hci` | 12 | design ops, laws of UX, Fitts, Miller, Hick, Doherty |
+| `figma` | 6 | design-to-code, library generation, SwiftUI bridge |
+| `foundations` | 5 | hierarchy, spacing scales, icons, shadows |
+| `quality` | 5 | Web Vitals, performance, QA |
+| `design-doc` | 5 | DESIGN.md, design systems in Figma |
+| `typography` / `color` | 7 | type scales, pairing, OKLCH, palettes |
+| `dataviz` / `game` / `2d` | 5 | charts, HUDs, PixiJS |
+| `copy` / `research` / `iterate` | 8 | UX writing, empathy maps, variants, stress tests |
 
-Diese Bibliothek ist bewusst **free von** Liquid Glass, Glassmorphism, Neumorphism,
-Brutalism und Skeuomorphism. Bei Design-Arbeit gilt:
+## Anti-slop rules — binding
 
-- **Verboten:** Liquid Glass, Glassmorphism, Neumorphismus, Brutalismus, Skeuomorphie,
-  generische "AI-Look"-Gradienten, Inter/gleiche Systemfonts ohne Kontrastidee.
-- **Erlaubt und bevorzugt:** klare Typografie-Hierarchie, echte Raster, bewusste
-  Farbsysteme (OKLCH), Editorial-Layouts, reduzierte Elevation, funktionale Bewegung.
-- Vor Abschluss einer Design-Aufgabe: `./slop-scan.sh` prüfen, falls Visuals involved sind.
+This library is deliberately free of Liquid Glass, Glassmorphism, Neumorphism,
+Brutalism and Skeuomorphism. When doing design work:
 
-Bereits deaktiviert und aus dem aktiven Set entfernt: `industrial-brutalist-ui`,
-`cosmic-glass-dashboard` (liegen in `.disabled-slop/`).
+**Forbidden:** Liquid Glass · Glassmorphism · Neumorphism · Brutalism · Skeuomorphism ·
+frosted-glass shells · generic AI gradients · undifferentiated uniform spacing ·
+stock 3D buttons · interchangeable buzzword copy.
 
-## Skills mit Sonderstatus
+**Expected:** intentional type hierarchy · a real grid · a systematic colour system
+(prefer OKLCH) with checked contrast · flat surfaces with functional depth · motion
+that earns its place · one detail that could not appear in any other project.
 
-Einige Skills in `~/.claude/skills/` sind **Symlinks** in diese Bibliothek. Sie
-tauchen deshalb normal im Skill-Tool auf, kosten aber keinen extra Speicher:
+If a loaded skill promotes a banned aesthetic, ignore that section and say so.
+
+Verify with:
 
 ```bash
-ls -la ~/.claude/skills/ | grep '^l'   # alle verlinkten Skills
+cd ~/.claude/design-skill-library && ./slop-scan.sh   # exit 0 = clean
 ```
 
-Um einen davon dauerhaft aus dem Auto-Laden zu nehmen, Symlink löschen — der Inhalt
-bleibt in der Bibliothek erhalten.
+## Symlinked skills
+
+Some skills in `~/.claude/skills/` are **symlinks** into this library. They still appear
+in the skill tool but cost nothing extra:
+
+```bash
+ls -la ~/.claude/skills/ | grep '^l'
+```
+
+To stop one being auto-loaded, delete the symlink — the content stays in the library and
+is still reachable through `/design`.

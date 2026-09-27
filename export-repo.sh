@@ -1,93 +1,58 @@
 #!/usr/bin/env bash
-# Design Skill Library — Repo-Export
+# Design Skill Library — repo export
 #
-# Erzeugt .repo/ mit ausschliesslich Inhalten, deren Weiterverbreitung belegbar
-# erlaubt ist. Skills aus Quellen ohne erkennbare bzw. restriktive Lizenz
-# bleiben lokal in der Bibliothek, werden aber nicht veroeffentlicht.
+# The published repository contains ONLY content authored for this project:
+# the installer, the selection engine, the manifests, the slash commands and
+# the router skill. No third-party skill content is redistributed here —
+# install.sh fetches each curated skill from its original GitHub repository.
+#
+# README.md, LICENSE and .gitignore live in the working tree and are preserved
+# across re-exports. .git is never touched.
 set -euo pipefail
 
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 R="$LIB/.repo"
 
-echo "→ ermittle lizenzierte Skills …"
-ALLOW="$LIB/.allowlist.tsv"
-python3 - "$LIB" > "$ALLOW" <<'PY'
-import re, sys
-from pathlib import Path
-lib = Path(sys.argv[1])
-EXCLUDE = {
-    "anthropics_skills", "anthropics_claude-code", "openai_skills",
-    "figma_mcp-server-guide", "jakubkrehel_oklch-skill",
-    "daniel-dan-conrad_ui-designer-skill", "sentimony_skills",
-    "vercel-labs_agent-skills",
-}
-PERMISSIVE = ("Apache License", "MIT License", "The MIT License", "BSD")
-rows = []
-for mf in ("CURATION.tsv", "CURATION2.tsv"):
-    p = lib / mf
-    if not p.is_file():
-        continue
-    for line in p.read_text(encoding="utf-8").splitlines():
-        if not line.strip() or line.startswith("#"):
-            continue
-        f = line.split("\t")
-        if len(f) < 2 or f[1] in EXCLUDE:
-            continue
-        repo = lib / ".tmp-clone" / f[1]
-        if not repo.is_dir():
-            continue
-        ok = False
-        for lf in repo.glob("LICENSE*"):
-            head = lf.read_text(errors="replace")[:1200]
-            if any(re.search(pat, head, re.I) for pat in PERMISSIVE):
-                ok = True
-        if ok:
-            rows.append(f"{f[0]}\t{f[1]}")
-print("\n".join(rows))
-PY
-echo "  $(wc -l < "$ALLOW") Skills erlaubt"
+PRESERVE=(README.md README.de.md LICENSE .gitignore)
 
-echo "→ staging nach $R"
-# README/LICENSE/.gitignore liegen dauerhaft in $R und werden beim Re-Export
-# gesichert, damit sie nicht verloren gehen. .git wird NIEMALS angefasst:
-# das Arbeitsverzeichnis ist selbst das geklonte Repo.
 STASH="$LIB/.repo-stash"
 rm -rf "$STASH"; mkdir -p "$STASH"
-for f in README.md LICENSE .gitignore; do
+for f in "${PRESERVE[@]}"; do
   [[ -f "$R/$f" ]] && cp "$R/$f" "$STASH/" || true
 done
 
-# Inhalt loeschen statt Verzeichnis entfernen -> .git bleibt erhalten
+echo "→ clearing $R (keeping .git)"
 find "$R" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-mkdir -p "$R/skills" "$R/commands"
-cp -a "$STASH/." "$R/"
+mkdir -p "$R/commands" "$R/skills"
+cp -a "$STASH/." "$R/" 2>/dev/null || true
 rm -rf "$STASH"
 
-for f in CURATION.tsv CURATION2.tsv ATTRIBUTION.md install.sh slop-scan.sh \
-         build-index.py build-attribution.py migrate-existing.sh export-repo.sh; do
+echo "→ copying project files"
+for f in CURATION.tsv CURATION2.tsv CURATION3.tsv install.sh select-skills.py \
+         slop-scan.sh build-index.py build-attribution.py migrate-existing.sh \
+         export-repo.sh ATTRIBUTION.md; do
   [[ -f "$LIB/$f" ]] && cp "$LIB/$f" "$R/"
 done
 chmod +x "$R"/*.sh 2>/dev/null || true
+chmod +x "$R"/*.py 2>/dev/null || true
 
-cp "$HOME/.claude/commands/design.md"         "$R/commands/design.md"         2>/dev/null || true
-cp "$HOME/.claude/commands/design-skills.md" "$R/commands/design-skills.md" 2>/dev/null || true
-cp -R "$HOME/.claude/skills/design-library"  "$R/skills/design-library"     2>/dev/null || true
+# Slash commands and the router skill (both authored here)
+cp "$HOME/.claude/commands/design.md"            "$R/commands/design.md"            2>/dev/null || true
+cp "$HOME/.claude/commands/design-skills.md"     "$R/commands/design-skills.md"     2>/dev/null || true
+cp "$HOME/.claude/commands/design-interview.md"  "$R/commands/design-interview.md"  2>/dev/null || true
+rm -rf "$R/skills/design-library"
+cp -R "$HOME/.claude/skills/design-library" "$R/skills/design-library" 2>/dev/null || true
 
-echo "→ kopiere Skills …"
-count=0
-while IFS=$'\t' read -r slug repo; do
-  [[ -z "${slug:-}" ]] && continue
-  src="$LIB/skills/$slug"
-  [[ -d "$src" ]] || continue
-  rm -rf "$R/skills/$slug"
-  cp -R "$src" "$R/skills/$slug"
-  count=$((count + 1))
-done < "$ALLOW"
-rm -f "$ALLOW"
-
-# Index ueber den fertigen Snapshot erzeugen (nicht die lokale Gesamtversion)
-(cd "$R" && python3 build-index.py) || echo "WARNUNG: Index-Erzeugung fehlgeschlagen"
+# Guard: refuse to publish if any third-party SKILL.md slipped in.
+# The router skill (skills/design-library/SKILL.md) is ours and allowed.
+strays=$(find "$R/skills" -mindepth 2 -name SKILL.md -not -path "*/design-library/*" 2>/dev/null | wc -l)
+if (( strays > 0 )); then
+  echo "ERROR: $strays foreign SKILL.md files in $R/skills — aborting."
+  find "$R/skills" -mindepth 2 -name SKILL.md -not -path "*/design-library/*" | head
+  exit 1
+fi
 
 echo
-echo "Skills im Repo-Snapshot: $count"
-du -sh "$R"
+echo "project files: $(find "$R" -type f -not -path "*/.git/*" | wc -l)"
+echo "skills shipped: $(ls "$R/skills" | wc -l)  (router only — the rest is fetched)"
+du -sh "$R" --exclude=.git 2>/dev/null || du -sh "$R"

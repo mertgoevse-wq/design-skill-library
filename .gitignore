@@ -1,5 +1,14 @@
+# Fetched from upstream at install time — never redistributed here
+.sources/
+skills/*/
+!skills/design-library/
+
+# Generated locally by build-index.py
+INDEX.md
+index.json
+
+# Local state
 .tmp-clone/
 .backup-originals/
 .disabled-slop/
-.repo/
-index.json
+.repo-stash/

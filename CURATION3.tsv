@@ -1,0 +1,109 @@
+# Design Skill Library — Curation Wave 3
+# 100 further design skills: motion depth, 3D/WebGL, game UI, dataviz,
+# platform design, marketing. Same format as CURATION.tsv / CURATION2.tsv.
+#
+# slug	repo	path	category	installs	origin
+# ── Motion: official GSAP (greensock) ─────────────────────────────────────────
+gsap-core	greensock_gsap-skills	skills/gsap-core	motion	59.9K	new3
+gsap-scrolltrigger	greensock_gsap-skills	skills/gsap-scrolltrigger	motion	57.6K	new3
+gsap-plugins	greensock_gsap-skills	skills/gsap-plugins	motion	54K	new3
+gsap-timeline	greensock_gsap-skills	skills/gsap-timeline	motion	-	new3
+gsap-performance	greensock_gsap-skills	skills/gsap-performance	quality	-	new3
+gsap-react	greensock_gsap-skills	skills/gsap-react	motion	-	new3
+gsap-frameworks	greensock_gsap-skills	skills/gsap-frameworks	motion	-	new3
+gsap-utils	greensock_gsap-skills	skills/gsap-utils	motion	-	new3
+# ── Motion: libraries & engines ───────────────────────────────────────────────
+motion-framer	freshtechbro_claudedesignskills	.claude/skills/motion-framer	motion	4.7K	new3
+animejs	freshtechbro_claudedesignskills	.claude/skills/animejs	motion	-	new3
+lottie-animations	freshtechbro_claudedesignskills	.claude/skills/lottie-animations	motion	-	new3
+rive-interactive	freshtechbro_claudedesignskills	.claude/skills/rive-interactive	motion	-	new3
+react-spring-physics	freshtechbro_claudedesignskills	.claude/skills/react-spring-physics	motion	-	new3
+barba-js	freshtechbro_claudedesignskills	.claude/skills/barba-js	motion	-	new3
+locomotive-scroll	freshtechbro_claudedesignskills	.claude/skills/locomotive-scroll	motion	-	new3
+scroll-reveal-libraries	freshtechbro_claudedesignskills	.claude/skills/scroll-reveal-libraries	motion	-	new3
+animated-component-libraries	freshtechbro_claudedesignskills	.claude/skills/animated-component-libraries	framework	-	new3
+awwwards-animations	devmartinese_awwwards-animations-skill	.	motion	2.5K	new3
+animate-skill	delphi-ai_animate-skill	.	motion	3.2K	new3
+motion-patterns	affaan-m_ecc	skills/motion-patterns	motion	5.7K	new3
+
+# ── Motion: principles (dylantarre) ───────────────────────────────────────────
+anim-universal-reference	dylantarre_animation-principles	skills/04-by-skill-level/universal-reference	motion	-	new3
+anim-universal-mindset	dylantarre_animation-principles	skills/02-by-thinking-style/universal-mindset	motion	-	new3
+anim-universal-patterns	dylantarre_animation-principles	skills/05-by-animation-type/universal-patterns	motion	-	new3
+anim-universal-timing	dylantarre_animation-principles	skills/10-by-time-scale/universal-timing	motion	-	new3
+anim-timing-mastery	dylantarre_animation-principles	skills/02-by-thinking-style/timing-mastery	motion	-	new3
+anim-slow-in-out-mastery	dylantarre_animation-principles	skills/11-by-principle-focus/slow-in-out-mastery	motion	-	new3
+anim-squash-stretch-mastery	dylantarre_animation-principles	skills/11-by-principle-focus/squash-stretch-mastery	motion	-	new3
+anim-anticipation-mastery	dylantarre_animation-principles	skills/11-by-principle-focus/anticipation-mastery	motion	-	new3
+anim-arc-mastery	dylantarre_animation-principles	skills/11-by-principle-focus/arc-mastery	motion	-	new3
+anim-exaggeration-mastery	dylantarre_animation-principles	skills/11-by-principle-focus/exaggeration-mastery	motion	-	new3
+anim-physics-intuition	dylantarre_animation-principles	skills/02-by-thinking-style/physics-intuition	motion	-	new3
+anim-problem-diagnosis	dylantarre_animation-principles	skills/02-by-thinking-style/problem-diagnosis	motion	-	new3
+anim-accessible-motion	dylantarre_animation-principles	skills/01-by-domain/accessible-motion	a11y	-	new3
+anim-web-motion-design	dylantarre_animation-principles	skills/01-by-domain/web-motion-design	motion	-	new3
+anim-game-development	dylantarre_animation-principles	skills/01-by-domain/game-development	motion	-	new3
+anim-data-visualization	dylantarre_animation-principles	skills/01-by-domain/data-visualization	motion	-	new3
+anim-micro-interactions	dylantarre_animation-principles	skills/01-by-domain/micro-interactions	motion	-	new3
+anim-page-transitions	dylantarre_animation-principles	skills/01-by-domain/page-transitions	motion	-	new3
+anim-mobile-touch	dylantarre_animation-principles	skills/01-by-domain/mobile-touch	mobile	-	new3
+anim-loading-states	dylantarre_animation-principles	skills/05-by-animation-type/loading-states	ux	-	new3
+anim-notifications-toasts	dylantarre_animation-principles	skills/07-by-ui-element/notifications-toasts	ux	-	new3
+anim-navigation-menus	dylantarre_animation-principles	skills/07-by-ui-element/navigation-menus	ux	-	new3
+anim-modals-dialogs	dylantarre_animation-principles	skills/07-by-ui-element/modals-dialogs	ux	-	new3
+anim-buttons-ctas	dylantarre_animation-principles	skills/07-by-ui-element/buttons-ctas	ux	-	new3
+anim-forms-inputs	dylantarre_animation-principles	skills/07-by-ui-element/forms-inputs	ux	-	new3
+anim-instant-0-100ms	dylantarre_animation-principles	skills/10-by-time-scale/instant-0-100ms	motion	-	new3
+anim-micro-100-200ms	dylantarre_animation-principles	skills/10-by-time-scale/micro-100-200ms	motion	-	new3
+anim-medium-300-500ms	dylantarre_animation-principles	skills/10-by-time-scale/medium-300-500ms	motion	-	new3
+anim-orchestrated-sequences	dylantarre_animation-principles	skills/10-by-time-scale/orchestrated-sequences	motion	-	new3
+anim-saas-industry	dylantarre_animation-principles	skills/08-by-industry/saas-productivity	marketing	-	new3
+anim-ecommerce-industry	dylantarre_animation-principles	skills/08-by-industry/e-commerce-retail	marketing	-	new3
+anim-enterprise-industry	dylantarre_animation-principles	skills/08-by-industry/enterprise-b2b	marketing	-	new3
+anim-fintech-industry	dylantarre_animation-principles	skills/08-by-industry/fintech-banking	marketing	-	new3
+anim-gaming-industry	dylantarre_animation-principles	skills/08-by-industry/gaming-entertainment	marketing	-	new3
+anim-trust-reliability	dylantarre_animation-principles	skills/06-by-emotional-outcome/trust-reliability	motion	-	new3
+anim-elegance-sophistication	dylantarre_animation-principles	skills/06-by-emotional-outcome/elegance-sophistication	motion	-	new3
+anim-professionalism	dylantarre_animation-principles	skills/06-by-emotional-outcome/professionalism-credibility	motion	-	new3
+anim-urgency-action	dylantarre_animation-principles	skills/06-by-emotional-outcome/urgency-action	motion	-	new3
+# ── 3D / WebGL ───────────────────────────────────────────────────────────────
+threejs-webgl	freshtechbro_claudedesignskills	.claude/skills/threejs-webgl	3d	3.9K	new3
+react-three-fiber	freshtechbro_claudedesignskills	.claude/skills/react-three-fiber	3d	-	new3
+web3d-integration-patterns	freshtechbro_claudedesignskills	.claude/skills/web3d-integration-patterns	3d	-	new3
+lightweight-3d-effects	freshtechbro_claudedesignskills	.claude/skills/lightweight-3d-effects	3d	-	new3
+playcanvas-engine	freshtechbro_claudedesignskills	.claude/skills/playcanvas-engine	3d	-	new3
+babylonjs-engine	freshtechbro_claudedesignskills	.claude/skills/babylonjs-engine	3d	-	new3
+aframe-webxr	freshtechbro_claudedesignskills	.claude/skills/aframe-webxr	3d	-	new3
+spline-interactive	freshtechbro_claudedesignskills	.claude/skills/spline-interactive	3d	-	new3
+threejs-fundamentals	cloudai-x_threejs-skills	skills/threejs-fundamentals	3d	-	new3
+threejs-shaders	cloudai-x_threejs-skills	skills/threejs-shaders	3d	11.2K	new3
+threejs-postprocessing	cloudai-x_threejs-skills	skills/threejs-postprocessing	3d	9.3K	new3
+threejs-materials	cloudai-x_threejs-skills	skills/threejs-materials	3d	-	new3
+threejs-lighting	cloudai-x_threejs-skills	skills/threejs-lighting	3d	-	new3
+threejs-loaders	cloudai-x_threejs-skills	skills/threejs-loaders	3d	-	new3
+threejs-interaction	cloudai-x_threejs-skills	skills/threejs-interaction	3d	-	new3
+threejs-animation	cloudai-x_threejs-skills	skills/threejs-animation	3d	-	new3
+pixijs-2d	freshtechbro_claudedesignskills	.claude/skills/pixijs-2d	2d	2.2K	new3
+# ── Game UI ──────────────────────────────────────────────────────────────────
+game-ui-design	omer-metin_skills-for-antigravity	skills/game-ui-design	game	3.3K	new3
+threejs-game-ui-designer	majidmanzarpour_threejs-game-skills	skills/threejs-game-ui-designer	game	2.4K	new3
+# ── Data visualisation ───────────────────────────────────────────────────────
+data-viz	aladicf_better-web-ui	skills/data-viz	dataviz	387	new3
+ai-data-viz	ryanthedev_design-for-ai	skills/data-viz	dataviz	99	new3
+ai-prototype	ryanthedev_design-for-ai	skills/prototype	ux	99	new3
+ai-usability	ryanthedev_design-for-ai	skills/usability	review	99	new3
+ai-clarify	ryanthedev_design-for-ai	skills/clarify	ux	99	new3
+# ── Platform design ──────────────────────────────────────────────────────────
+macos-app-design	petekp_agent-skills	skills/macos-app-design	mobile	372	new3
+apple-ios-design	ehmo_platform-design-skills	skills/ios	mobile	1.1K	new3
+apple-macos-design	ehmo_platform-design-skills	skills/macos	mobile	1.1K	new3
+apple-ipados-design	ehmo_platform-design-skills	skills/ipados	mobile	1.1K	new3
+apple-watchos-design	ehmo_platform-design-skills	skills/watchos	mobile	1.1K	new3
+apple-tvos-design	ehmo_platform-design-skills	skills/tvos	mobile	1.1K	new3
+apple-visionos-design	ehmo_platform-design-skills	skills/visionos	mobile	1.1K	new3
+android-design	ehmo_platform-design-skills	skills/android	mobile	1.1K	new3
+# ── Marketing / conversion ───────────────────────────────────────────────────
+onboarding-cro	coreyhaines31_marketingskills	skills/onboarding	marketing	61.5K	new3
+churn-prevention	coreyhaines31_marketingskills	skills/churn-prevention	marketing	107.4K	new3
+# ── Assets & visual ──────────────────────────────────────────────────────────
+baoyu-diagram	jimliu_baoyu-skills	skills/baoyu-diagram	visual	14.7K	new3
+logo-creator	resciencelab_opc-skills	skills/logo-creator	visual	3K	new3
