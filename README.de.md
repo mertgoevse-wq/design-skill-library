@@ -40,7 +40,24 @@ cp -R skills/design-library ~/.claude/skills/
 ```
 
 Funktioniert genauso in Codex, Cursor, Gemini CLI und jedem Client, der das
-Agent-Skills-Format liest — `skills/` einfach dorthin legen, wo der Client sucht.
+Agent-Skills-Format liest.
+
+**Freebuff, Codex, Cursor, Gemini CLI und alles ohne Slash-Commands:**
+`./sync-freebuff.sh` ausführen. Das schreibt dieselben drei Befehle als Skills nach
+`~/.agents/skills/` und entfernt dabei das Command-Frontmatter, damit eine gültige
+`SKILL.md` entsteht. Der Body ist die Command-Datei wortgleich — beide Clients führen
+also identische Anweisungen aus, mit einer einzigen Quelle der Wahrheit.
+
+```bash
+./sync-freebuff.sh
+#   design             frontmatter + 187 Zeilen, inhaltsgleich
+#   design-interview   frontmatter + 65 Zeilen, inhaltsgleich
+#   design-skills      frontmatter + 99 Zeilen, inhaltsgleich
+```
+
+Nach jeder Änderung an einer Command-Datei erneut ausführen. Das Skript prüft bei jedem
+Lauf, dass jeder Skill genau einen Frontmatter-Block und einen mit der Command-Datei
+identischen Body hat, und endet sonst mit exit ≠ 0.
 
 ---
 
@@ -248,12 +265,12 @@ design-skill-library/
 ├── install.sh            kuratierte Skills aus ihren Quell-Repos holen
 ├── select-skills.py      Auswahl-Engine (mit --selftest)
 ├── slop-scan.sh          Anti-Slop-Gate
+├── sync-freebuff.sh      Befehle für Agenten ohne Slash-Commands bereitstellen
 ├── auto-update.sh        Aktualisieren + Gate + Selftest + Index
 ├── update-on-start.sh    Session-Start-Wrapper für Umgebungen ohne cron
 ├── build-index.py        INDEX.md + index.json erzeugen
 ├── build-attribution.py  ATTRIBUTION.md erzeugen
 ├── migrate-existing.sh   bestehende Skills in die Bibliothek überführen
-├── export-repo.sh        veröffentlichbaren Snapshot bauen
 ├── ATTRIBUTION.md        Quellen, Lizenzen, Commit-Hashes
 ├── commands/
 │   ├── design.md             /design
@@ -265,6 +282,9 @@ design-skill-library/
 
 `INDEX.md` und `index.json` erzeugt `build-index.py` lokal und werden nicht committet —
 sie existieren erst, nachdem du die Skills installiert hast.
+
+Entwicklungsnotizen, Architekturentscheidungen und der Migrationsverlauf liegen in einem
+separaten privaten Repository. Dieses Repo liefert nur das Werkzeug.
 
 ---
 

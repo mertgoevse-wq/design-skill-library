@@ -39,8 +39,22 @@ cp commands/*.md ~/.claude/commands/
 cp -R skills/design-library ~/.claude/skills/
 ```
 
-Works the same way in Codex, Cursor, Gemini CLI and any other client that reads the
-Agent Skills format — put `skills/` wherever that client looks.
+**Freebuff, Codex, Cursor, Gemini CLI and anything else without slash commands:**
+run `./sync-freebuff.sh`. It writes the same three commands into `~/.agents/skills/` as
+skills, stripping the command frontmatter so the result is a valid `SKILL.md`. The body
+is the command file verbatim, so both clients execute identical instructions from one
+source of truth.
+
+```bash
+./sync-freebuff.sh
+#   design             frontmatter + 187 lines, contents match
+#   design-interview   frontmatter + 65 lines, contents match
+#   design-skills      frontmatter + 99 lines, contents match
+```
+
+Re-run it after editing any command file. The script verifies on every run that each
+skill has exactly one frontmatter block and a body identical to its command file, and
+exits non-zero if not.
 
 ---
 
@@ -244,12 +258,12 @@ design-skill-library/
 ├── install.sh            fetch curated skills from their source repos
 ├── select-skills.py      selection engine (with --selftest)
 ├── slop-scan.sh          anti-slop gate
+├── sync-freebuff.sh      expose the commands to agents without slash commands
 ├── auto-update.sh        refresh + gate + selftest + index
 ├── update-on-start.sh    session-start wrapper for cron-less environments
 ├── build-index.py        generate INDEX.md + index.json
 ├── build-attribution.py  generate ATTRIBUTION.md
 ├── migrate-existing.sh   move existing skills into the library
-├── export-repo.sh        build the publishable snapshot
 ├── ATTRIBUTION.md        sources, licenses, commit hashes
 ├── commands/
 │   ├── design.md             /design
@@ -261,6 +275,9 @@ design-skill-library/
 
 `INDEX.md` and `index.json` are generated locally by `build-index.py` and are not
 committed — they only exist once you have installed the skills.
+
+Development notes, architecture decisions and the migration record live in a separate
+private repository. This repo ships the tool only.
 
 ---
 
