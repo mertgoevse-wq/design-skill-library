@@ -30,7 +30,7 @@ rm -rf "$STASH"
 echo "→ copying project files"
 for f in CURATION.tsv CURATION2.tsv CURATION3.tsv install.sh select-skills.py \
          slop-scan.sh build-index.py build-attribution.py migrate-existing.sh \
-         export-repo.sh ATTRIBUTION.md; do
+         export-repo.sh auto-update.sh update-on-start.sh ATTRIBUTION.md; do
   [[ -f "$LIB/$f" ]] && cp "$LIB/$f" "$R/"
 done
 chmod +x "$R"/*.sh 2>/dev/null || true

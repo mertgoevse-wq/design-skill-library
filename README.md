@@ -90,8 +90,17 @@ python3 select-skills.py "3d hero" --domain=3d,motion --style=atmospheric
 python3 select-skills.py "saas dashboard" --style=dense-data --json
 ```
 
-Domain detection uses word boundaries, so "photographer" does not trigger the chart
-domain. Category caps prevent a single category from dominating the shortlist.
+Domain detection uses weighted, word-boundary-matched cues, so "photographer" does not
+trigger the chart domain and "apple" does not trigger the app domain. Category caps
+prevent a single category from dominating the shortlist.
+
+It also detects **industry** as a modifier — `fintech`, `ecommerce`, `healthcare`,
+`education`, `enterprise`, `portfolio` — and excludes skills that promote banned
+aesthetics from selection entirely.
+
+```bash
+python3 select-skills.py --selftest   # 11 cases, verifies domains and top-8 ranking
+```
 
 ---
 
@@ -155,6 +164,37 @@ Skills disabled by this rule sit in `.disabled-slop/` locally with a
 
 ---
 
+## Keeping it current
+
+```bash
+./auto-update.sh              # refresh from source, run gate + self-test, rebuild index
+./auto-update.sh --check      # report only, change nothing
+```
+
+It refreshes every installed skill from its source, runs the anti-slop gate, runs the
+selection self-test, rebuilds the index, and exits non-zero if anything failed. It never
+pushes — publishing stays a manual step. Logs land in `logs/`.
+
+**Scheduling.** Where cron or a systemd user bus exists, schedule `auto-update.sh`
+directly. In containers and WSL, where neither is available, use the session-start hook —
+it is a no-op unless 30 days have passed, and it never blocks or fails the session:
+
+```jsonc
+// ~/.claude/settings.json
+{
+  "hooks": {
+    "SessionStart": [{
+      "hooks": [{ "type": "command", "command": "/path/to/update-on-start.sh" }]
+    }]
+  }
+}
+```
+
+The wrapper holds a lock file so concurrent sessions do not race, and records the
+attempt timestamp so a failure does not retry hourly.
+
+---
+
 ## What is in the library
 
 Curated from **27+ upstream repositories** across three waves.
@@ -202,8 +242,10 @@ design-skill-library/
 ├── CURATION2.tsv         wave 2  — anti-slop, grids, motion, Figma, research
 ├── CURATION3.tsv         wave 3  — motion depth, 3D/WebGL, game UI, dataviz, platforms
 ├── install.sh            fetch curated skills from their source repos
-├── select-skills.py      selection engine
+├── select-skills.py      selection engine (with --selftest)
 ├── slop-scan.sh          anti-slop gate
+├── auto-update.sh        refresh + gate + selftest + index
+├── update-on-start.sh    session-start wrapper for cron-less environments
 ├── build-index.py        generate INDEX.md + index.json
 ├── build-attribution.py  generate ATTRIBUTION.md
 ├── migrate-existing.sh   move existing skills into the library

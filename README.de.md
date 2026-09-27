@@ -91,8 +91,17 @@ python3 select-skills.py "3d hero" --domain=3d,motion --style=atmospheric
 python3 select-skills.py "saas dashboard" --style=dense-data --json
 ```
 
-Die Domänenerkennung nutzt Wortgrenzen, damit „photographer" nicht die Chart-Domäne
-auslöst. Kategorie-Limits verhindern, dass eine Kategorie die Auswahl dominiert.
+Die Domänenerkennung nutzt gewichtete Cues mit Wortgrenzen, damit „photographer" nicht
+die Chart-Domäne und „apple" nicht die App-Domäne auslöst. Kategorie-Limits verhindern,
+dass eine Kategorie die Auswahl dominiert.
+
+Sie erkennt außerdem die **Branche** als Modifikator — `fintech`, `ecommerce`,
+`healthcare`, `education`, `enterprise`, `portfolio` — und schließt Skills, die
+verbotene Ästhetiken bewerben, komplett aus der Auswahl aus.
+
+```bash
+python3 select-skills.py --selftest   # 11 Fälle, prüft Domänen und Top-8-Ranking
+```
 
 ---
 
@@ -157,6 +166,39 @@ einem Reaktivierungs-Snippet — es wird nichts gelöscht.
 
 ---
 
+## Aktuell halten
+
+```bash
+./auto-update.sh              # von Quelle aktualisieren, Gate + Selftest, Index neu
+./auto-update.sh --check      # nur berichten, nichts ändern
+```
+
+Es aktualisiert jeden installierten Skill aus seiner Quelle, führt das Anti-Slop-Gate
+und den Selftest der Auswahl-Engine aus, baut den Index neu und endet mit exit ≠ 0,
+wenn etwas fehlschlug. Es pusht nie — das Veröffentlichen bleibt manuell. Logs landen
+in `logs/`.
+
+**Einplanung.** Wo cron oder ein systemd-User-Bus existiert, einfach `auto-update.sh`
+eintragen. In Containern und unter WSL, wo beides fehlt, der Session-Start-Hook — er ist
+ein No-op, solange 30 Tage nicht vergangen sind, und blockiert oder beendet die Session
+niemals:
+
+```jsonc
+// ~/.claude/settings.json
+{
+  "hooks": {
+    "SessionStart": [{
+      "hooks": [{ "type": "command", "command": "/pfad/zu/update-on-start.sh" }]
+    }]
+  }
+}
+```
+
+Der Wrapper hält eine Lock-Datei, damit parallele Sessions nicht gegeneinander laufen,
+und schreibt den Versuchszeitpunkt, damit ein Fehler nicht stündlich wiederholt wird.
+
+---
+
 ## Inhalt der Bibliothek
 
 Kuratiert aus **27+ Upstream-Repositories** in drei Wellen.
@@ -204,8 +246,10 @@ design-skill-library/
 ├── CURATION2.tsv         Welle 2  — Anti-Slop, Grids, Motion, Figma, Research
 ├── CURATION3.tsv         Welle 3  — Motion-Tiefe, 3D/WebGL, Game-UI, Dataviz, Plattformen
 ├── install.sh            kuratierte Skills aus ihren Quell-Repos holen
-├── select-skills.py      Auswahl-Engine
+├── select-skills.py      Auswahl-Engine (mit --selftest)
 ├── slop-scan.sh          Anti-Slop-Gate
+├── auto-update.sh        Aktualisieren + Gate + Selftest + Index
+├── update-on-start.sh    Session-Start-Wrapper für Umgebungen ohne cron
 ├── build-index.py        INDEX.md + index.json erzeugen
 ├── build-attribution.py  ATTRIBUTION.md erzeugen
 ├── migrate-existing.sh   bestehende Skills in die Bibliothek überführen
